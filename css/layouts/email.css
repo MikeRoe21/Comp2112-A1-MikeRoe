@@ -273,3 +273,6 @@ a {
     }
 }
 
+.btn-pressed{
+    background-color:rgb(141, 20, 20);
+}
