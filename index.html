@@ -21,6 +21,7 @@
 </head>
 <body>
 
+    <div id = "app">
 
 <div id="layout" class="content pure-g">
     <div id="nav" class="pure-u">
@@ -38,15 +39,16 @@
             <!-- leftover links from Assignment 1 menu -->
             <div class="pure-menu">
                     <ul class="pure-menu-list">
-                        <li class="pure-menu-item"><a id="inbox" href="#" class="pure-menu-link">Inbox <span class="email-count">(2)</span></a></li>
+                        <li class="pure-menu-item"><a id="inbox" href="#" class="pure-menu-link" @click="setView('inbox')">Inbox <span class="email-count">(2)</span></a></li>
                         <li class="pure-menu-item"><a href="#" class="pure-menu-link">Important</a></li>
                         <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sent</a></li>
                         <li class="pure-menu-item"><a href="#" class="pure-menu-link">Drafts</a></li>
-                        <li class="pure-menu-item"><a id="linkTrash" href="#" class="pure-menu-link">Trash</a></li>
+                        <li class="pure-menu-item"><a id="linkTrash" href="#" class="pure-menu-link" @click="setView('trash')">Trash</a></li>
                         <li class="pure-menu-heading">Labels</li>
                         <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-personal"></span>Personal</a></li>
                         <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-work"></span>Work</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-travel"></span>Travel</a></li>
+                        <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-travel"></span>Travel</a>
+                        </li>
                     </ul>
                 </div>
                </div>
@@ -54,34 +56,58 @@
                 
                 
                <div id="list" class="pure-u-1">
-                   <template v-for="email, index in emails">
+                   <template v-for="email in currentView()">
                     
                  
            
             <!--having the new emails appear when compose is clicked -->
-            <div class="email-item pure-g">
+            <div class="email-item pure-g" v-on:click="clickedEmail(email)" v-bind:class="{'email-item-selected': isSelected(email)}">
                 <!-- <template v-for="email, index in emails"> -->
-                <div class="pure-u-1">
-                    <img width="64" height="64" alt="" class="email-avatar" {{ emails.Avatar }}>
+                <div class="pure-u">
+                    <img width="64" height="64" v-bind:alt="getAlt(email)" class="email-avatar" :src="getPic(email)">
                 </div>
                 
                 
                 <!-- Email first, last and subject names -->
-                <div class="pure-u-1">
-                    <h5 class="email-name"{{ emails.first_name }} {{ emails.last_name }} {{ emails.email }}> </h5>
-                    <h4 class="email-subject"{{ emails.subject }}></h4> 
+                <div class="pure-u-3-4">
+                    <h5 class="email-name">{{ email.first_name }} {{ email.last_name }} {{ email.email }}</h5>
+                    <h4 class="email-subject">{{ email.subject }}</h4> 
+                    </div>
+                    </div>
                 </template>
                 </div>
-                </div>
-               
+                
 
-                
-                
-                
-                
-                
-        
-        
+                <div id="main" class="pure-u-1">
+                    <div class="email-content">
+                        <div class="email-content-header pure-g">
+                            <div class="pure-u-1-2">
+                                <h1 class="email-content-title">{{ selectedEmail.subject }}</h1>
+                                <p class="email-content-subtitle">
+                                    {{ selectedEmail.email }} </br>
+                                    {{ selectedEmail.Date }} 
+                                    {{ selectedEmail.Time }}
+                                </p>
+                            </div>
+
+                            <div class="email-content-controls pure-u-1-2">
+                                <button class="secondary-button pure-button">Reply</button>
+                                <button class="secondary-button pure-button">Forward</button>
+                                <button class="secondary-button pure-button" @click="deleteEmail">Delete</button>
+                            </div>
+                        </div>
+
+                        <div class="email-content-body">
+                            <p>
+                                {{ selectedEmail.body }}
+                            </p>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+               
                 <!-- Vue script package -->
                 <script src="https://unpkg.com/vue"></script>
 
@@ -179,6 +205,10 @@
 
                         gen: '',
 
+                        selectedEmail: {},
+
+                        view: 'inbox'
+
                     },
 
                     
@@ -198,24 +228,40 @@
 
                             tempObj.done ? console.warn('no more emails to display') : this.emails.push(tempObj.value);
                         },
+                        getPic: function(emailObj) {
+                            return `${emailObj.Avatar}`;
+                        },
+                        getAlt(emailObj) {
+                            return `${emailObj.first_name} ${emailObj.last_name}'s avatar`;
+                        },
+                        clickedEmail: function(emailObj) {
+                            this.selectedEmail = emailObj;
+                        },
+                        isSelected: function(emailObj) {
+                            return emailObj == this.selectedEmail;
+                        },
+                        currentView() {
+                            switch(this.view){
+                                case "inbox":
+                                return this.emails.filter(email => !email.deleted)
+                                break;
+
+                                case "trash":
+                                return this.emails.filter(email => email.deleted);
+                            }
+                        },
+                        setView(clickedView) {
+                          this.view = clickedView;  
+                        },
+                        deleteEmail() {
+                            this.$set(this.selectedEmail, "deleted", true);
+                        }
                     }
-                })
+                });
                 
 
             </script>
         
-</div>
-</div>
-
-
-   
-       
-   
-
-
-
-
-
 
 <script src="https://yui-s.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
 <script>
@@ -233,9 +279,6 @@
 
     });
 </script>
-
-</div>
-</div>
 
 
 </body>
