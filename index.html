@@ -34,7 +34,6 @@
         <a id="addemail" v-on:click="btn_addEmail" class="primary-button pure-button" href="#">Compose</a>
             </div>
 
-            
 
             <!-- leftover links from Assignment 1 menu -->
             <div class="pure-menu">
@@ -91,9 +90,21 @@
                             </div>
 
                             <div class="email-content-controls pure-u-1-2">
-                                <button class="secondary-button pure-button">Reply</button>
-                                <button class="secondary-button pure-button">Forward</button>
+                                
+                                <!-- API #1: Geolocating -->
+                                <button class="secondary-button pure-button" @click="GeoLocate()">Geolocation</button>
+                                <p id="geo">Click to get coordinates</p>
+
+                                <!-- API #2: Keypress detection -->
+                                <input id="key" type="text" v-on:keypress="KeyPress">
+
+                                <!-- Testing .fetch for my github account -->
+                                <button class="secondary-button pure-button" 
+                                @click="test()">My Github data</button>
+
                                 <button class="secondary-button pure-button" @click="deleteEmail">Delete</button>
+
+                                <button class="secondary-button pure-button" @click="fetch2()">TestFetch</button>
                             </div>
                         </div>
 
@@ -255,6 +266,83 @@
                         },
                         deleteEmail() {
                             this.$set(this.selectedEmail, "deleted", true);
+                        },
+
+                        // When the button GeoLocate is clicked, calls a method that determines the current longitude and latitude of the user.
+
+                        GeoLocate() {
+                        const result = document.getElementById("geo");
+
+                        if (!navigator.geolocation){
+                        result.innerHTML = "<p>Geolocation is not supported by your browser</p>";
+                        return;
+                        }
+
+                        function success(position) {
+                            const latitude  = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+
+                            result.innerHTML = '<p>Your current Latitude is ' + latitude + '° <br> And your current Longitude is ' + longitude + '°</p>';
+
+                        }
+
+                        function error() {
+                            result.innerHTML = "There was an Error";
+                        }
+
+                        result.innerHTML = "<p>One Moment...</p>";
+
+                        navigator.geolocation.getCurrentPosition(success, error);
+                        },
+
+                    
+
+                        KeyPress: function(event) {
+                        console.log(event.key);
+                        if(event.key == "A")
+                        {
+                            console.log("The A key was pressed!");
+                        }
+                        if(event.key == "B")
+                        {
+                            console.log("The B key was pressed!");
+                        }
+                        if(event.key == "C")
+                        {
+                            console.log("The C key was pressed!");
+                        }
+                        },
+                        
+                        test(){
+                        fetch('https://api.github.com/users/MikeRoe21')
+                        .then(res => res.json() )
+                        .then(data => console.log(data));
+                        
+                        },
+
+
+
+                        // Fetch > Then > Catch
+
+                        fetch1() {
+                            fetch("https://randomuser.me/api/")
+                            .then(res => res.json())
+                            .then(emails => {
+
+                                this.emails = emails.results;
+                            })
+                            .catch(err => console.log(err));
+                        },
+
+                        // Async > Await > Fetch
+
+                        fetch2() {
+                            const fetch2 = async() => {
+                                const response = await fetch("https://randomuser.me/api/");
+                                const json = await response.json();
+                                console.log(json);
+                            }
+                            fetch2();
                         }
                     }
                 });
